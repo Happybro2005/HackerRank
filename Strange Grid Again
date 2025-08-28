@@ -1,0 +1,9 @@
+int strangeGrid(int r, int c) {
+    int group = (r - 1) / 2;
+    int base = group * 10;
+    if (r % 2 == 1) {
+        return base + 2 * (c - 1);
+    } else {
+        return base + 1 + 2 * (c - 1);
+    }
+}
