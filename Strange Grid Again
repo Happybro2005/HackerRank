@@ -1,9 +1,30 @@
-int strangeGrid(int r, int c) {
-    int group = (r - 1) / 2;
-    int base = group * 10;
-    if (r % 2 == 1) {
-        return base + 2 * (c - 1);
-    } else {
-        return base + 1 + 2 * (c - 1);
-    }
+long long strangeGrid(long long r, long long c) {
+    long long block = (r - 1) / 2;
+    long long base = block * 10;
+    long long offset = (c - 1) * 2;
+    if (r % 2 == 0)
+        return base + offset + 1;
+    else
+        return base + offset;
+}
+
+
+
+int main()
+{
+    FILE* fptr = fopen(getenv("OUTPUT_PATH"), "w");
+
+    char** first_multiple_input = split_string(rtrim(readline()));
+
+    long r = parse_int(*(first_multiple_input + 0));
+
+    int c = parse_int(*(first_multiple_input + 1));
+
+    long long result = strangeGrid(r, c);
+
+    fprintf(fptr, "%lld\n", result);
+
+    fclose(fptr);
+
+    return 0;
 }
