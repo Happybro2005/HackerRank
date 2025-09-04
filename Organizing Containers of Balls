@@ -1,0 +1,38 @@
+char* organizingContainers(int container_rows, int container_columns, int** container) {
+     int *container_capacity = malloc(container_rows * sizeof(int));
+    int *ball_type_count = malloc(container_columns * sizeof(int));
+
+    for (int i = 0; i < container_rows; i++) {
+        container_capacity[i] = 0;
+    }
+    for (int j = 0; j < container_columns; j++) {
+        ball_type_count[j] = 0;
+    }
+    for (int i = 0; i < container_rows; i++) {
+        for (int j = 0; j < container_columns; j++) {
+            container_capacity[i] += container[i][j];
+            ball_type_count[j] += container[i][j];
+        }
+    }
+
+    int compare(const void *a, const void *b) {
+        return (*(int*)a - *(int*)b);
+    }
+
+    qsort(container_capacity, container_rows, sizeof(int), compare);
+    qsort(ball_type_count, container_columns, sizeof(int), compare);
+
+    for (int i = 0; i < container_rows; i++) {
+        if (container_capacity[i] != ball_type_count[i]) {
+            free(container_capacity);
+            free(ball_type_count);
+            return "Impossible";
+        }
+    }
+
+    free(container_capacity);
+    free(ball_type_count);
+
+    return "Possible";
+}
+
