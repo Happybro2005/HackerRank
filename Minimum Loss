@@ -1,4 +1,15 @@
- PriceData* price_data = (PriceData*)malloc(price_count * sizeof(PriceData));
+
+
+int compare(const void* a, const void* b) {
+    long longA = ((PriceData*)a)->price;
+    long longB = ((PriceData*)b)->price;
+    if (longA < longB) return -1;
+    if (longA > longB) return 1;
+    return 0;
+}
+
+int minimumLoss(int price_count, long* price) {
+    PriceData* price_data = (PriceData*)malloc(price_count * sizeof(PriceData));
     for (int i = 0; i < price_count; i++) {
         price_data[i].price = price[i];
         price_data[i].index = i;
@@ -19,3 +30,28 @@
 
     free(price_data);
     return (int)min_loss;
+}
+
+int main()
+{
+    FILE* fptr = fopen(getenv("OUTPUT_PATH"), "w");
+
+    int n = parse_int(ltrim(rtrim(readline())));
+
+    char** price_temp = split_string(rtrim(readline()));
+
+    long* price = malloc(n * sizeof(long));
+
+    for (int i = 0; i < n; i++) {
+        long price_item = parse_long(*(price_temp + i));
+        *(price + i) = price_item;
+    }
+
+    int result = minimumLoss(n, price);
+
+    fprintf(fptr, "%d\n", result);
+
+    fclose(fptr);
+
+    return 0;
+}
