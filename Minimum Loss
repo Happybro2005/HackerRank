@@ -1,0 +1,21 @@
+ PriceData* price_data = (PriceData*)malloc(price_count * sizeof(PriceData));
+    for (int i = 0; i < price_count; i++) {
+        price_data[i].price = price[i];
+        price_data[i].index = i;
+    }
+
+    qsort(price_data, price_count, sizeof(PriceData), compare);
+
+    long min_loss = LONG_MAX;
+
+    for (int i = 1; i < price_count; i++) {
+        if (price_data[i].index < price_data[i-1].index) {
+            long loss = price_data[i].price - price_data[i-1].price;
+            if (loss < min_loss) {
+                min_loss = loss;
+            }
+        }
+    }
+
+    free(price_data);
+    return (int)min_loss;
