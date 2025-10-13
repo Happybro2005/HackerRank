@@ -1,0 +1,151 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string ltrim(const string &);
+string rtrim(const string &);
+
+/*
+ * Complete the 'stones' function below.
+ *
+ * The function is expected to return an INTEGER_ARRAY.
+ * The function accepts following parameters:
+ * 1. INTEGER n
+ * 2. INTEGER a
+ * 3. INTEGER b
+ */
+
+vector<int> stones(int n, int a, int b) {
+    // The number of steps (differences) is n-1, as the problem states n non-zero stones, 
+    // and the start stone is not counted. The total stones are n+1 (0-stone + n non-zero stones).
+    // The number of differences applied is the number of non-zero stones, n.
+    // However, the example shows n=3 stones means 3 differences: 0 -> s1 -> s2 -> s3 (last stone).
+    // The problem statement is slightly ambiguous, but the example confirms the number of differences is n-1.
+    // Example: n=3, a=1, b=2. Last stone values are 2, 3, 4. This corresponds to n-1 = 2 differences.
+    // 0 -> diff1 -> diff2 -> LAST
+    // Sum = i*a + (2-i)*b for i=0, 1, 2.
+    // i=0: 0*1 + 2*2 = 4
+    // i=1: 1*1 + 1*2 = 3
+    // i=2: 2*1 + 0*2 = 2
+    // The final values are 2, 3, 4.
+    // The correct number of differences is n - 1.
+    int steps = n - 1; 
+    
+    // Ensure a <= b to generate results in ascending order by simply iterating i.
+    if (a > b) {
+        swap(a, b);
+    }
+    
+    vector<int> possible_values;
+    
+    // If a and b are the same, there's only one possible value.
+    if (a == b) {
+        // Value = steps * a
+        possible_values.push_back(steps * a);
+        return possible_values;
+    }
+    
+    // Iterate through all possible counts 'i' for difference 'a'.
+    // i ranges from 0 (all b's) to steps (all a's).
+    // Let i be the number of times difference 'a' is chosen.
+    // Then (steps - i) is the number of times difference 'b' is chosen.
+    // Since a < b, as 'i' (the count of the smaller difference 'a') decreases, 
+    // the total sum increases.
+    // Thus, iterating i from 'steps' down to '0' will give the values in ASCENDING order.
+    // OR, iterate i from 0 to steps. Let i be the count of the SMALLER value (a).
+    // i=0: 0*a + steps*b (MAX value)
+    // i=steps: steps*a + 0*b (MIN value)
+    
+    // The key is to iterate through the *count of the smaller number* in the direction that produces ascending results.
+    // Let's stick to the simplest iteration and sort at the end, or ensure the iteration order is correct.
+    
+    // Correct Iteration for ASCENDING order (since a <= b):
+    // The smallest sum occurs when a is used 'steps' times (i = steps).
+    // The largest sum occurs when b is used 'steps' times (i = 0).
+    // To get ascending order, we must iterate i (count of a) from 'steps' down to '0'.
+    
+    // The prompt is slightly confusing, let's re-read the example: n=3. stones=2,3,4.
+    // steps = n-1 = 2.
+    // i=0: 0*1 + 2*2 = 4
+    // i=1: 1*1 + 1*2 = 3
+    // i=2: 2*1 + 0*2 = 2
+    // If we iterate i from 0 to 2, we get 4, 3, 2 (Descending).
+    // If we iterate i from 2 to 0, we get 2, 3, 4 (Ascending).
+    
+    for (int i = steps; i >= 0; --i) {
+        int count_a = i;
+        int count_b = steps - i;
+        
+        // Calculate the final value
+        int final_value = count_a * a + count_b * b;
+        
+        possible_values.push_back(final_value);
+    }
+    
+    return possible_values;
+}
+
+int main()
+{
+    ofstream fout(getenv("OUTPUT_PATH"));
+
+    string T_temp;
+    getline(cin, T_temp);
+
+    int T = stoi(ltrim(rtrim(T_temp)));
+
+    for (int T_itr = 0; T_itr < T; T_itr++) {
+        string n_temp;
+        getline(cin, n_temp);
+
+        int n = stoi(ltrim(rtrim(n_temp)));
+
+        string a_temp;
+        getline(cin, a_temp);
+
+        int a = stoi(ltrim(rtrim(a_temp)));
+
+        string b_temp;
+        getline(cin, b_temp);
+
+        int b = stoi(ltrim(rtrim(b_temp)));
+
+        vector<int> result = stones(n, a, b);
+
+        for (size_t i = 0; i < result.size(); i++) {
+            fout << result[i];
+
+            if (i != result.size() - 1) {
+                fout << " ";
+            }
+        }
+
+        fout << "\n";
+    }
+
+    fout.close();
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), [](int c){return !isspace(c);})
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), [](int c){return !isspace(c);}).base(),
+        s.end()
+    );
+
+    return s;
+}
