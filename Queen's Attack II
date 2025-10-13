@@ -1,0 +1,220 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string ltrim(const string &);
+string rtrim(const string &);
+vector<string> split(const string &);
+
+int queensAttack(int n, int k, int r_q, int c_q, vector<vector<int>> obstacles) {
+    
+    // Initial Orthogonal Boundaries (Obstacle/Edge coordinates)
+    int c_right = n + 1; // Closest boundary to the right
+    int c_left = 0;      // Closest boundary to the left
+    int r_up = n + 1;    // Closest boundary up
+    int r_down = 0;      // Closest boundary down
+
+    // Initial Diagonal Boundaries
+    // The closest obstacle coordinates that limit movement.
+    // Initialized to the board's edge in that direction.
+    
+    // Up-Right (r > r_q, c > c_q). Initial distance is min(n-r_q, n-c_q)
+    int r_ur = min(n - r_q, n - c_q) + r_q + 1;
+    int c_ur = min(n - r_q, n - c_q) + c_q + 1;
+    
+    // Up-Left (r > r_q, c < c_q). Initial distance is min(n-r_q, c_q-1)
+    int r_ul = min(n - r_q, c_q - 1) + r_q + 1;
+    int c_ul = c_q - min(n - r_q, c_q - 1) - 1;
+    
+    // Down-Right (r < r_q, c > c_q). Initial distance is min(r_q-1, n-c_q)
+    int r_dr = r_q - min(r_q - 1, n - c_q) - 1;
+    int c_dr = min(r_q - 1, n - c_q) + c_q + 1;
+    
+    // Down-Left (r < r_q, c < c_q). Initial distance is min(r_q-1, c_q-1)
+    int r_dl = r_q - min(r_q - 1, c_q - 1) - 1;
+    int c_dl = c_q - min(r_q - 1, c_q - 1) - 1;
+
+
+    // A simpler way for diagonals is to track only the closest *distance* // and derive the coordinate, or just use a large/small number like the orthogonal case,
+    // but ensure the initial large/small number falls on the correct diagonal line.
+    
+    // Let's stick to the large/small coordinate idea, but use min/max to update distance/coordinate correctly.
+    
+    // Correcting the initialization for large/small numbers to simplify boundary checks:
+    // It's safer to use the maximum possible distance to the board edge rather than n+1/0, 
+    // as it relates better to the actual coordinate of the edge in that diagonal direction.
+    
+    r_ur = r_q + min(n - r_q, n - c_q) + 1;
+    c_ur = c_q + min(n - r_q, n - c_q) + 1;
+    
+    r_ul = r_q + min(n - r_q, c_q - 1) + 1;
+    c_ul = c_q - min(n - r_q, c_q - 1) - 1;
+
+    r_dr = r_q - min(r_q - 1, n - c_q) - 1;
+    c_dr = c_q + min(r_q - 1, n - c_q) + 1;
+    
+    r_dl = r_q - min(r_q - 1, c_q - 1) - 1;
+    c_dl = c_q - min(r_q - 1, c_q - 1) - 1;
+
+
+    for (const auto& obs : obstacles) {
+        int r_o = obs[0];
+        int c_o = obs[1];
+
+        // Orthogonal Obstacles
+        if (r_o == r_q) {
+            if (c_o > c_q) { // Right
+                c_right = min(c_right, c_o);
+            }
+            if (c_o < c_q) { // Left
+                c_left = max(c_left, c_o);
+            }
+        } else if (c_o == c_q) {
+            if (r_o > r_q) { // Up
+                r_up = min(r_up, r_o);
+            }
+            if (r_o < r_q) { // Down
+                r_down = max(r_down, r_o);
+            }
+        }
+
+        // Diagonal Obstacles
+        else if (abs(r_o - r_q) == abs(c_o - c_q)) {
+            // Up-Right: r_o > r_q, c_o > c_q. Obstacle is closer if r_o is smaller.
+            if (r_o > r_q && c_o > c_q) {
+                if (r_o < r_ur) {
+                    r_ur = r_o;
+                    c_ur = c_o;
+                }
+            }
+            // Up-Left: r_o > r_q, c_o < c_q. Obstacle is closer if r_o is smaller.
+            else if (r_o > r_q && c_o < c_q) {
+                if (r_o < r_ul) {
+                    r_ul = r_o;
+                    c_ul = c_o;
+                }
+            }
+            // Down-Right: r_o < r_q, c_o > c_q. Obstacle is closer if r_o is larger.
+            else if (r_o < r_q && c_o > c_q) {
+                if (r_o > r_dr) {
+                    r_dr = r_o;
+                    c_dr = c_o;
+                }
+            }
+            // Down-Left: r_o < r_q, c_o < c_q. Obstacle is closer if r_o is larger.
+            else if (r_o < r_q && c_o < c_q) {
+                if (r_o > r_dl) {
+                    r_dl = r_o;
+                    c_dl = c_o;
+                }
+            }
+        }
+    }
+
+    int total_attacks = 0;
+
+    // Orthogonal Attacks
+    total_attacks += (c_right - c_q - 1);
+    total_attacks += (c_q - c_left - 1);
+    total_attacks += (r_up - r_q - 1);
+    total_attacks += (r_q - r_down - 1);
+
+    // Diagonal Attacks
+    // The attack count is the distance between the queen and the closest boundary minus 1.
+    // For diagonals, this distance is measured by the change in row or column.
+    
+    total_attacks += (r_ur - r_q - 1); 
+    total_attacks += (r_ul - r_q - 1); 
+    total_attacks += (r_q - r_dr - 1); 
+    total_attacks += (r_q - r_dl - 1);
+    
+    return total_attacks;
+}
+
+// Boilerplate code...
+int main()
+{
+    ofstream fout(getenv("OUTPUT_PATH"));
+
+    string first_multiple_input_temp;
+    getline(cin, first_multiple_input_temp);
+
+    vector<string> first_multiple_input = split(rtrim(first_multiple_input_temp));
+
+    int n = stoi(first_multiple_input[0]);
+
+    int k = stoi(first_multiple_input[1]);
+
+    string second_multiple_input_temp;
+    getline(cin, second_multiple_input_temp);
+
+    vector<string> second_multiple_input = split(rtrim(second_multiple_input_temp));
+
+    int r_q = stoi(second_multiple_input[0]);
+
+    int c_q = stoi(second_multiple_input[1]);
+
+    vector<vector<int>> obstacles(k);
+
+    for (int i = 0; i < k; i++) {
+        obstacles[i].resize(2);
+
+        string obstacles_row_temp_temp;
+        getline(cin, obstacles_row_temp_temp);
+
+        vector<string> obstacles_row_temp = split(rtrim(obstacles_row_temp_temp));
+
+        for (int j = 0; j < 2; j++) {
+            int obstacles_row_item = stoi(obstacles_row_temp[j]);
+
+            obstacles[i][j] = obstacles_row_item;
+        }
+    }
+
+    int result = queensAttack(n, k, r_q, c_q, obstacles);
+
+    fout << result << "\n";
+
+    fout.close();
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), [](int c){return !isspace(c);})
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), [](int c){return !isspace(c);}).base(),
+        s.end()
+    );
+
+    return s;
+}
+
+vector<string> split(const string &str) {
+    vector<string> tokens;
+
+    string::size_type start = 0;
+    string::size_type end = 0;
+
+    while ((end = str.find(" ", start)) != string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+
+        start = end + 1;
+    }
+
+    tokens.push_back(str.substr(start));
+
+    return tokens;
+}
