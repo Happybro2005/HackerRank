@@ -1,0 +1,100 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string ltrim(const string &);
+string rtrim(const string &);
+
+string happyLadybugs(string b) {
+    int n = b.length();
+    map<char, int> frequency;
+    bool hasEmptySpace = false;
+
+    for (char c : b) {
+        if (c == '_') {
+            hasEmptySpace = true;
+        } else {
+            frequency[c]++;
+        }
+    }
+
+    for (auto const& [key, val] : frequency) {
+        if (val == 1) {
+            return "NO";
+        }
+    }
+
+    if (hasEmptySpace) {
+        return "YES";
+    }
+
+    for (int i = 0; i < n; i++) {
+        bool isHappy = false;
+        
+        if (i > 0 && b[i] == b[i-1]) {
+            isHappy = true;
+        }
+        
+        if (i < n - 1 && b[i] == b[i+1]) {
+            isHappy = true;
+        }
+
+        if (!isHappy) {
+            return "NO";
+        }
+    }
+
+    return "YES";
+}
+
+int main()
+{
+    const char* env_p = getenv("OUTPUT_PATH");
+    string path = (env_p) ? env_p : "output.txt"; 
+    ofstream fout(path);
+
+    string g_temp;
+    getline(cin, g_temp);
+
+    int g = stoi(ltrim(rtrim(g_temp)));
+
+    for (int g_itr = 0; g_itr < g; g_itr++) {
+        string n_temp;
+        getline(cin, n_temp);
+
+        int n = stoi(ltrim(rtrim(n_temp)));
+
+        string b;
+        getline(cin, b);
+
+        string result = happyLadybugs(b);
+
+        fout << result << "\n";
+    }
+
+    fout.close();
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace)))
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        s.end()
+    );
+
+    return s;
+}
